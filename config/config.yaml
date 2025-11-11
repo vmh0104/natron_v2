@@ -1,0 +1,155 @@
+# Natron Transformer Configuration
+# Multi-Task Financial Trading Model
+
+# Data Configuration
+data:
+  input_file: "data/data_export.csv"
+  sequence_length: 96
+  test_split: 0.2
+  validation_split: 0.1
+  columns:
+    time: "time"
+    open: "open"
+    high: "high"
+    low: "low"
+    close: "close"
+    volume: "volume"
+
+# Feature Engineering
+features:
+  total_features: 100
+  groups:
+    moving_average: 13
+    momentum: 13
+    volatility: 15
+    volume: 9
+    price_pattern: 8
+    returns: 8
+    trend_strength: 6
+    statistical: 6
+    support_resistance: 4
+    smart_money: 6
+    market_profile: 10
+
+# Labeling V2 Configuration
+labeling:
+  neutral_buffer: 0.001
+  direction_lookahead: 3
+  volume_threshold: 1.5
+  position_threshold_high: 0.7
+  position_threshold_low: 0.3
+  regime:
+    bull_strong_trend: 0.02
+    bull_strong_adx: 25
+    bear_strong_trend: -0.02
+    bear_strong_adx: 25
+    volatile_atr_percentile: 90
+  balance:
+    target_buy_ratio: 0.35
+    target_sell_ratio: 0.35
+    downsample_strategy: "random"
+
+# Model Architecture
+model:
+  d_model: 256
+  nhead: 8
+  num_encoder_layers: 6
+  dim_feedforward: 1024
+  dropout: 0.1
+  activation: "gelu"
+  max_seq_length: 96
+  
+  # Task heads
+  buy_head: "sigmoid"
+  sell_head: "sigmoid"
+  direction_classes: 3
+  regime_classes: 6
+
+# Phase 1: Pretraining
+pretrain:
+  epochs: 50
+  batch_size: 128
+  learning_rate: 1.0e-4
+  weight_decay: 1.0e-5
+  mask_ratio: 0.15
+  contrastive_temperature: 0.07
+  contrastive_weight: 0.3
+  reconstruction_weight: 0.7
+  warmup_epochs: 5
+  checkpoint_dir: "model/pretrain"
+
+# Phase 2: Supervised Training
+supervised:
+  epochs: 100
+  batch_size: 64
+  learning_rate: 5.0e-5
+  weight_decay: 1.0e-5
+  scheduler:
+    type: "ReduceLROnPlateau"
+    factor: 0.5
+    patience: 5
+    min_lr: 1.0e-7
+  loss_weights:
+    buy: 1.0
+    sell: 1.0
+    direction: 1.5
+    regime: 1.2
+  early_stopping_patience: 15
+  checkpoint_dir: "model/supervised"
+  load_pretrained: true
+
+# Phase 3: Reinforcement Learning
+rl:
+  algorithm: "PPO"
+  episodes: 1000
+  max_steps: 500
+  learning_rate: 3.0e-5
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip_epsilon: 0.2
+  entropy_coef: 0.01
+  value_loss_coef: 0.5
+  max_grad_norm: 0.5
+  ppo_epochs: 4
+  minibatch_size: 32
+  
+  # Reward function
+  reward:
+    profit_scale: 1.0
+    turnover_penalty: 0.1
+    drawdown_penalty: 0.5
+    holding_penalty: 0.001
+  
+  # Trading environment
+  env:
+    initial_balance: 10000
+    transaction_cost: 0.0002
+    max_position_size: 1.0
+    leverage: 1
+  
+  checkpoint_dir: "model/rl"
+
+# API Server
+api:
+  host: "0.0.0.0"
+  port: 5000
+  model_path: "model/natron_v2.pt"
+  timeout: 0.05  # 50ms target
+  log_predictions: true
+
+# Training Configuration
+training:
+  device: "cuda"  # cuda or cpu
+  num_workers: 4
+  pin_memory: true
+  gradient_accumulation_steps: 1
+  mixed_precision: true
+  seed: 42
+
+# Logging
+logging:
+  level: "INFO"
+  dir: "logs"
+  tensorboard: true
+  save_metrics: true
+  print_freq: 10
