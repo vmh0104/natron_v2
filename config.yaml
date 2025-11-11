@@ -1,0 +1,76 @@
+# Natron Transformer V2 Configuration
+
+data:
+  input_file: "data_export.csv"
+  sequence_length: 96
+  train_split: 0.7
+  val_split: 0.15
+  test_split: 0.15
+  random_seed: 42
+
+features:
+  num_features: 100
+  normalization: "standard"  # standard, minmax, robust
+
+labeling:
+  neutral_buffer: 0.001
+  buy_threshold: 2  # min conditions for BUY
+  sell_threshold: 2  # min conditions for SELL
+  balance_labels: true
+  stochastic_perturbation: 0.05
+
+model:
+  d_model: 256
+  nhead: 8
+  num_layers: 6
+  dim_feedforward: 1024
+  dropout: 0.1
+  activation: "gelu"
+  max_seq_length: 96
+
+training:
+  batch_size: 32
+  num_epochs_pretrain: 50
+  num_epochs_supervised: 100
+  learning_rate: 1e-4
+  weight_decay: 1e-5
+  optimizer: "adamw"
+  scheduler: "reduce_on_plateau"
+  scheduler_patience: 5
+  scheduler_factor: 0.5
+  device: "cuda"  # cuda or cpu
+  num_workers: 4
+  pin_memory: true
+
+pretraining:
+  mask_probability: 0.15
+  contrastive_temperature: 0.07
+  contrastive_weight: 0.5
+  reconstruction_weight: 0.5
+
+supervised:
+  buy_weight: 1.0
+  sell_weight: 1.0
+  direction_weight: 1.0
+  regime_weight: 1.0
+  class_weights: true
+
+rl:
+  enabled: false
+  algorithm: "ppo"  # ppo or sac
+  total_timesteps: 100000
+  learning_rate: 3e-4
+  gamma: 0.99
+  alpha: 0.1  # turnover penalty
+  beta: 0.05  # drawdown penalty
+
+api:
+  host: "0.0.0.0"
+  port: 5000
+  debug: false
+
+paths:
+  model_dir: "models"
+  checkpoint_dir: "checkpoints"
+  log_dir: "logs"
+  data_dir: "data"
