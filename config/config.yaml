@@ -1,0 +1,71 @@
+# Natron Transformer V2 Configuration
+
+data:
+  csv_path: "data/data_export.csv"
+  sequence_length: 96
+  train_split: 0.7
+  val_split: 0.15
+  test_split: 0.15
+
+features:
+  total_features: 100
+  groups:
+    moving_average: 13
+    momentum: 13
+    volatility: 15
+    volume: 9
+    price_pattern: 8
+    returns: 8
+    trend_strength: 6
+    statistical: 6
+    support_resistance: 4
+    smart_money: 6
+    market_profile: 10
+
+labeling:
+  buy_threshold: 2  # min conditions for BUY
+  sell_threshold: 2  # min conditions for SELL
+  neutral_buffer: 0.001  # for direction labeling
+  balance_classes: true
+  stochastic_perturbation: 0.05
+
+model:
+  d_model: 256
+  nhead: 8
+  num_layers: 6
+  dim_feedforward: 1024
+  dropout: 0.1
+  activation: "gelu"
+
+training:
+  batch_size: 32
+  num_epochs_pretrain: 50
+  num_epochs_supervised: 100
+  learning_rate: 1e-4
+  weight_decay: 1e-5
+  device: "cuda"
+  
+  pretrain:
+    mask_prob: 0.15
+    contrastive_temperature: 0.07
+    reconstruction_weight: 1.0
+    contrastive_weight: 0.5
+  
+  supervised:
+    scheduler_patience: 5
+    scheduler_factor: 0.5
+    early_stopping_patience: 10
+
+api:
+  host: "0.0.0.0"
+  port: 5000
+  debug: false
+
+socket:
+  host: "127.0.0.1"
+  port: 8888
+
+paths:
+  model_dir: "model"
+  log_dir: "logs"
+  model_name: "natron_v2.pt"
