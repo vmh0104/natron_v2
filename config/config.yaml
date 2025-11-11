@@ -1,0 +1,94 @@
+# Natron Transformer Configuration
+
+data:
+  csv_path: "data_export.csv"
+  sequence_length: 96
+  train_split: 0.7
+  val_split: 0.15
+  test_split: 0.15
+  neutral_buffer: 0.001  # For direction labeling
+
+features:
+  total_features: 100
+  normalize: true
+  fill_method: "forward"  # forward fill for NaN
+
+labels:
+  buy_threshold: 2  # min conditions to trigger
+  sell_threshold: 2
+  regime_trend_strong: 0.02  # 2%
+  regime_adx_threshold: 25
+  regime_atr_percentile: 90
+  balance_labels: true
+  downsample_heavy_classes: true
+
+model:
+  d_model: 256
+  nhead: 8
+  num_encoder_layers: 6
+  dim_feedforward: 1024
+  dropout: 0.1
+  activation: "gelu"
+  max_seq_length: 96
+
+training:
+  # Phase 1: Pretraining
+  pretrain:
+    enabled: true
+    epochs: 50
+    batch_size: 128
+    lr: 1e-4
+    weight_decay: 1e-5
+    mask_ratio: 0.15
+    contrastive_weight: 0.3
+    reconstruction_weight: 0.7
+    temperature: 0.07
+    
+  # Phase 2: Supervised
+  supervised:
+    enabled: true
+    epochs: 100
+    batch_size: 64
+    lr: 1e-4
+    weight_decay: 1e-5
+    loss_weights:
+      buy: 1.0
+      sell: 1.0
+      direction: 1.5
+      regime: 1.2
+    label_smoothing: 0.1
+    
+  # Phase 3: Reinforcement Learning
+  rl:
+    enabled: false  # Optional
+    algorithm: "PPO"
+    episodes: 1000
+    gamma: 0.99
+    lr: 3e-4
+    reward_alpha: 0.01  # turnover penalty
+    reward_beta: 0.05   # drawdown penalty
+
+optimization:
+  optimizer: "AdamW"
+  scheduler: "ReduceLROnPlateau"
+  scheduler_params:
+    factor: 0.5
+    patience: 5
+    min_lr: 1e-6
+  gradient_clip: 1.0
+  mixed_precision: true  # AMP for faster training
+
+system:
+  device: "cuda"  # cuda or cpu
+  num_workers: 4
+  pin_memory: true
+  seed: 42
+  checkpoint_dir: "model"
+  log_dir: "logs"
+  save_every: 10  # epochs
+
+inference:
+  api_host: "0.0.0.0"
+  api_port: 5000
+  model_path: "model/natron_v2.pt"
+  confidence_threshold: 0.6
