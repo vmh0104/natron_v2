@@ -1,0 +1,55 @@
+paths:
+  raw_data: data/data_export.csv
+  artifacts: artifacts
+  model_dir: model
+  pretrained_encoder: model/natron_encoder.pt
+  supervised_model: model/natron_v2.pt
+
+data:
+  sequence_length: 96
+  features:
+    neutral_buffer: 0.001
+  train:
+    validation_split: 0.2
+    test_split: 0.1
+    random_seed: 42
+
+pretraining:
+  epochs: 30
+  batch_size: 128
+  lr: 1.0e-4
+  weight_decay: 1.0e-5
+  mask_prob: 0.2
+  temperature: 0.1
+  use_amp: true
+
+supervised:
+  epochs: 60
+  batch_size: 128
+  lr: 1.0e-4
+  weight_decay: 1.0e-5
+  use_amp: true
+  scheduler:
+    patience: 5
+  class_weights:
+    buy: 1.1
+    sell: 1.1
+    direction: [1.0, 1.0, 1.2]
+    regime: [1.2, 1.0, 1.0, 1.1, 1.2, 1.0]
+
+model:
+  d_model: 192
+  n_heads: 8
+  num_layers: 6
+  d_ff: 512
+  dropout: 0.1
+  max_len: 512
+  embedding:
+    type: learned
+
+rl:
+  algorithm: ppo
+  total_steps: 100000
+  reward:
+    alpha: 0.001
+    beta: 0.001
