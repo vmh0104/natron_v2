@@ -1,0 +1,98 @@
+# Natron Transformer V2 Configuration
+
+# Data Configuration
+data:
+  input_file: "data_export.csv"
+  sequence_length: 96
+  train_split: 0.7
+  val_split: 0.15
+  test_split: 0.15
+  random_seed: 42
+
+# Feature Engineering
+features:
+  num_features: 100
+  normalize: true
+  standardize: true
+
+# Labeling Configuration
+labeling:
+  neutral_buffer: 0.001
+  lookahead_candles: 3
+  buy_threshold: 2  # Minimum conditions for BUY
+  sell_threshold: 2  # Minimum conditions for SELL
+  balance_labels: true
+  stochastic_perturbation: 0.05
+
+# Model Architecture
+model:
+  d_model: 256
+  nhead: 8
+  num_layers: 6
+  dim_feedforward: 1024
+  dropout: 0.1
+  activation: "gelu"
+  max_seq_length: 96
+
+# Training Configuration
+training:
+  batch_size: 32
+  num_epochs: 100
+  learning_rate: 1e-4
+  weight_decay: 1e-5
+  gradient_clip: 1.0
+  
+  # Phase 1: Pretraining
+  pretrain:
+    enabled: true
+    epochs: 50
+    mask_probability: 0.15
+    contrastive_temperature: 0.07
+    
+  # Phase 2: Supervised Fine-tuning
+  supervised:
+    enabled: true
+    epochs: 50
+    scheduler_patience: 5
+    scheduler_factor: 0.5
+    early_stopping_patience: 10
+    
+  # Phase 3: Reinforcement Learning (Optional)
+  rl:
+    enabled: false
+    algorithm: "PPO"
+    episodes: 1000
+    alpha: 0.1  # Turnover penalty
+    beta: 0.05  # Drawdown penalty
+
+# Loss Weights
+loss_weights:
+  buy: 1.0
+  sell: 1.0
+  direction: 1.0
+  regime: 1.0
+
+# Device Configuration
+device:
+  cuda: true
+  device_id: 0
+
+# Output Configuration
+output:
+  model_dir: "models"
+  model_name: "natron_v2.pt"
+  log_dir: "logs"
+  checkpoint_dir: "checkpoints"
+
+# API Configuration
+api:
+  host: "0.0.0.0"
+  port: 5000
+  debug: false
+
+# MQL5 Socket Configuration
+socket:
+  enabled: false
+  host: "localhost"
+  port: 8888
+  timeout: 5.0
