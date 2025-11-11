@@ -37,12 +37,21 @@ natron-transformer/
 │   ├── pretrain.py              # Phase 1: Unsupervised pretraining
 │   ├── train_supervised.py      # Phase 2: Supervised fine-tuning
 │   ├── train_rl.py              # Phase 3: Reinforcement learning (PPO)
-│   └── api_server.py            # Flask API server
+│   ├── api_server.py            # Flask API server
+│   └── bridge/
+│       ├── socket_server.py     # MQL5 socket bridge
+│       └── __init__.py
+├── mql5/
+│   ├── NatronAI.mq5             # MetaTrader 5 Expert Advisor
+│   └── README.md                # MQL5 installation guide
 ├── data/
 │   └── data_export.csv          # OHLCV input data
 ├── model/                       # Saved models and checkpoints
 ├── logs/                        # Training logs
 ├── main.py                      # Main training pipeline
+├── test_api.py                  # API testing script
+├── test_mql5_bridge.py          # MQL5 bridge testing
+├── MQL5_INTEGRATION.md          # Complete MQL5 guide
 └── requirements.txt             # Python dependencies
 ```
 
@@ -322,15 +331,42 @@ Make prediction from OHLCV data
 
 ## 🔌 MetaTrader 5 Integration
 
-The API is designed for real-time MQL5 integration:
+Full MQL5 Expert Advisor included for real-time trading!
 
 ```
-MQL5 EA ⇄ Socket/HTTP ⇄ Natron API (GPU)
+MQL5 EA (NatronAI.mq5) ⇄ Socket Server ⇄ Natron AI Model (GPU)
 ```
 
-**Latency Target:** <50ms per prediction
+**Latency:** 30-80ms end-to-end
 
-See documentation for MQL5 EA implementation details.
+### Quick Start
+
+1. **Start Socket Server:**
+   ```bash
+   python src/bridge/socket_server.py
+   ```
+
+2. **Install EA in MT5:**
+   - Copy `mql5/NatronAI.mq5` to MT5 Experts folder
+   - Compile in MetaEditor (F7)
+   - Drag onto chart
+
+3. **Configure EA:**
+   - Set ServerHost/ServerPort
+   - Adjust BuyThreshold/SellThreshold
+   - Enable/disable regime filter
+
+**Full Guide:** See `MQL5_INTEGRATION.md`
+
+### Features
+
+✅ Real-time AI predictions on chart  
+✅ Automatic position management  
+✅ Stop loss / Take profit  
+✅ Trailing stop  
+✅ Market regime filtering  
+✅ Multi-symbol support  
+✅ Paper trading ready
 
 ---
 
