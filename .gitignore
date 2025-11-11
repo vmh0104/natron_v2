@@ -1,0 +1,69 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# PyTorch
+*.pt
+*.pth
+*.ckpt
+!model/README.md
+
+# Data
+data/*.csv
+!data/README.md
+
+# Logs
+logs/
+*.log
+runs/
+
+# Model artifacts
+model/*.pt
+model/*.pkl
+*.pkl
+
+# Jupyter
+.ipynb_checkpoints
+*.ipynb
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Tensorboard
+events.out.tfevents.*
+
+# Temporary files
+*.tmp
+*.bak
+*.cache

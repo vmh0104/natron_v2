@@ -1,0 +1,30 @@
+# Natron Transformer - Multi-Task Financial Trading Model
+# Python 3.10+ required
+
+# Deep Learning
+torch>=2.0.0
+numpy>=1.24.0
+scikit-learn>=1.3.0
+
+# Data Processing
+pandas>=2.0.0
+ta>=0.11.0
+scipy>=1.11.0
+
+# Training & Optimization
+tensorboard>=2.14.0
+tqdm>=4.66.0
+
+# RL (Optional - Phase 3)
+gym>=0.26.0
+stable-baselines3>=2.0.0
+
+# API & Deployment
+flask>=3.0.0
+flask-cors>=4.0.0
+pyyaml>=6.0.0
+
+# Utilities
+python-dateutil>=2.8.2
+pytz>=2023.3
+joblib>=1.3.0
